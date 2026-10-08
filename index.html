@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SNF Ledger</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:"Noto Sans Kannada","Tunga",Arial,sans-serif;
+    background:linear-gradient(135deg,#eef4ff,#f8fbff);
+    color:#202124;
+}
+
+.container{
+    max-width:1450px;
+    margin:auto;
+    padding:18px;
+}
+
+h1{
+    color:#17365d;
+    font-size:28px;
+    text-align:center;
+    margin:5px 0 18px;
+}
+
+h2{
+    color:#24476b;
+    text-align:center;
+    margin:8px 0 15px;
+}
+
+h3{
+    color:#315a82;
+    text-align:center;
+}
+
+.header-box,
+.form-box,
+.table-box,
+.summary-box{
+    background:#fff;
+    padding:18px;
+    margin-bottom:18px;
+    border-radius:16px;
+    box-shadow:0 5px 20px rgba(30,70,110,.10);
+    border:1px solid #e2eaf3;
+}
+
+.header-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr;
+    gap:14px;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    color:#334e68;
+    margin-bottom:6px;
+}
+
+input,
+select{
+    width:100%;
+    padding:11px 12px;
+    font-size:15px;
+    border:1px solid #cbd5e1;
+    border-radius:9px;
+    background:#fff;
+    outline:none;
+}
+
+input:focus,
+select:focus{
+    border-color:#3578c4;
+    box-shadow:0 0 0 3px rgba(53,120,196,.12);
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+}
+
+.attendance-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-top:16px;
+}
+
+.food-box{
+    border:1px solid #d8e2ec;
+    border-radius:13px;
+    padding:15px;
+    background:#f9fbfd;
+}
+
+.food-box h3{
+    margin-top:0;
+}
+
+.btn-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-top:18px;
+}
+
+button{
+    border:0;
+    border-radius:10px;
+    padding:11px 14px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-1px);
+    box-shadow:0 5px 12px rgba(0,0,0,.12);
+}
+
+.btn-add{
+    background:linear-gradient(135deg,#198754,#20a464);
+    color:white;
+    margin-top:25px;
+}
+
+.btn-clear{
+    background:linear-gradient(135deg,#dc3545,#ef5363);
+    color:white;
+}
+
+.btn-print{
+    background:linear-gradient(135deg,#0d6efd,#3185f5);
+    color:white;
+}
+
+.btn-summary{
+    background:linear-gradient(135deg,#6f42c1,#8759db);
+    color:white;
+}
+
+.table-wrap{
+    overflow-x:auto;
+    border-radius:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1200px;
+}
+
+th{
+    background:linear-gradient(135deg,#24476b,#356c9d);
+    color:white;
+    font-weight:bold;
+}
+
+th,
+td{
+    border:1px solid #cbd5e1;
+    padding:8px 7px;
+    text-align:center;
+    white-space:nowrap;
+}
+
+tbody tr:nth-child(even){
+    background:#f7faff;
+}
+
+tbody tr:hover{
+    background:#edf5ff;
+}
+
+.total-row{
+    background:#fff3cd !important;
+    font-weight:bold;
+}
+
+.delete-btn{
+    background:#dc3545;
+    color:white;
+    padding:6px 10px;
+    width:auto;
+}
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+}
+
+.summary-card{
+    border:1px solid #ccd8e5;
+    border-radius:14px;
+    padding:12px;
+    background:#fbfdff;
+}
+
+.summary-card table{
+    min-width:0;
+}
+
+.summary-card th{
+    background:#315a82;
+}
+
+.grand-total{
+    margin-top:18px;
+    padding:16px;
+    text-align:center;
+    border-radius:12px;
+    background:linear-gradient(135deg,#d1e7dd,#e5f5ed);
+    color:#155d3b;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.designed-by{
+    text-align:center;
+    color:#718096;
+    font-size:13px;
+    margin:22px 0 8px;
+    letter-spacing:.4px;
+}
+
+
+/* ================= PRINT ================= */
+
+@page{
+    size:A4 landscape;
+    margin:10mm;
+}
+
+@media print{
+
+    body{
+        background:white !important;
+    }
+
+    .no-print,
+    .header-box,
+    .form-box,
+    .designed-by{
+        display:none !important;
+    }
+
+    .container{
+        max-width:none;
+        padding:0;
+    }
+
+    .table-box,
+    .summary-box{
+        box-shadow:none;
+        border:0;
+        padding:0;
+        margin:0;
+    }
+
+    /* Register print */
+
+    body.print-register .table-box{
+        display:block !important;
+    }
+
+    body.print-register .summary-box{
+        display:none !important;
+    }
+
+    /* Monthly consolidation print */
+
+    body.print-summary .table-box{
+        display:none !important;
+    }
+
+    body.print-summary .summary-box{
+        display:block !important;
+    }
+
+    table{
+        min-width:0 !important;
+        width:100%;
+        font-size:10px;
+    }
+
+    th,
+    td{
+        padding:5px 4px;
+    }
+
+    .summary-grid{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:12px;
+    }
+
+    .summary-card{
+        break-inside:avoid;
+    }
+
+    .grand-total{
+        margin-top:12px;
+    }
+}
+
+
+/* ================= MOBILE ================= */
+
+@media(max-width:850px){
+
+    .header-grid,
+    .form-grid,
+    .attendance-grid,
+    .summary-grid{
+        grid-template-columns:1fr;
+    }
+
+    .btn-row{
+        grid-template-columns:1fr;
+    }
+
+    h1{
+        font-size:22px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+<!-- ================= HEADER ================= -->
+
+<div class="header-box">
+
+<h1>
+ಪೂರಕ ಪೌಷ್ಠಿಕ ಆಹಾರ ತಿಂಗಳುವಾರು ವಿತರಣಾ ವಹಿ
+</h1>
+
+<div class="header-grid">
+
+<div>
+<label>ಶಾಲೆಯ ಹೆಸರು</label>
+
+<input
+type="text"
+id="schoolName"
+placeholder="ಶಾಲೆಯ ಹೆಸರನ್ನು ನಮೂದಿಸಿ">
+</div>
+
+
+<div>
+<label>ಶೈಕ್ಷಣಿಕ ವರ್ಷ</label>
+
+<select id="academicYear">
+
+<option>2025-26</option>
+<option selected>2026-27</option>
+<option>2027-28</option>
+<option>2028-29</option>
+
+</select>
+</div>
+
+
+<div>
+<label>ತಿಂಗಳು</label>
+
+<select id="month">
+
+<option>ಏಪ್ರಿಲ್</option>
